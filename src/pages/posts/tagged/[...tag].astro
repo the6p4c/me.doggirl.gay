@@ -3,6 +3,10 @@ import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
+
+  const newToOld = (a: Date, b: Date) => b.getTime() - a.getTime();
+  posts.sort((a, b) => newToOld(a.data.published, b.data.published));
+
   const tags = posts.flatMap((post) => post.data.tags || []);
 
   return tags.map((tag) => ({

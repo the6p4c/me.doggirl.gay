@@ -1,10 +1,10 @@
 ---
 import { getCollection } from "astro:content";
 
-// sort with newest first
-const posts = (await getCollection("posts")).toSorted((a, b) =>
-  a.data.published > b.data.published ? -1 : 1
-);
+const posts = await getCollection("posts");
+
+const newToOld = (a: Date, b: Date) => b.getTime() - a.getTime();
+posts.sort((a, b) => newToOld(a.data.published, b.data.published));
 ---
 
 <ul>
