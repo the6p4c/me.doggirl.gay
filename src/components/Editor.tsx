@@ -36,12 +36,20 @@ export default function Editor() {
 }
 
 export function Settings() {
-  const [error, setError] = useState<{ message: string; e?: any } | null>(null);
-  const die = (message: string, e?: any) => {
+  type State =
+    | { type: "success"; message: string }
+    | {
+        type: "error";
+        message: string;
+        e?: any;
+      };
+  const [status, setState] = useState<State | null>(null);
+  const setError = (message: string, e?: any) => {
     console.error(message, e);
-    setError({ message, e });
+    setState({ type: "error", message, e });
   };
-  const ok = () => setError(null);
+  const setSuccess = (message: string) =>
+    setState({ type: "success", message });
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,7 +69,7 @@ export function Settings() {
     try {
       await octokit.rest.repos.get({ owner, repo });
     } catch (e) {
-      die("repo doesn't exist", e);
+      setError("repo doesn't exist", e);
       return;
     }
 
@@ -73,17 +81,17 @@ export function Settings() {
         path: CONFIG_PATH,
       });
     } catch (e) {
-      die("couldn't find config", e);
+      setError("couldn't find config", e);
       return;
     }
 
     if (Array.isArray(response.data)) {
-      die("config was a directory");
+      setError("config was a directory");
       return;
     }
 
     if (response.data.type != "file") {
-      die(`config wasn't a file; had type ${response.data.type}`);
+      setError(`config wasn't a file; had type ${response.data.type}`);
       return;
     }
 
@@ -91,11 +99,20 @@ export function Settings() {
     try {
       config = JSON.parse(atob(response.data.content));
     } catch (e) {
-      die("couldn't parse config", e);
+      setError("couldn't parse config", e);
       return;
     }
 
-    ok();
+    try {
+      localStorage.setItem("auth", auth);
+      localStorage.setItem("owner", owner);
+      localStorage.setItem("repo", repo);
+    } catch (e) {
+      setError("couldn't write to local storage", e);
+      return;
+    }
+
+    setSuccess("settings saved!");
   };
 
   return (
@@ -118,11 +135,17 @@ export function Settings() {
       <div className={styles.buttons}>
         <button type="submit">save</button>
       </div>
-      {error && (
+      {status && (
         <div className={styles.status}>
-          <strong>something went wrong</strong>
-          <p>{error.message}</p>
-          {error.e && <pre>{"" + error.e}</pre>}
+          {status.type == "success" ? (
+            <p>{status.message}</p>
+          ) : (
+            <>
+              <strong>something went wrong</strong>
+              <p>{status.message}</p>
+              <pre>{"" + status.e}</pre>
+            </>
+          )}
         </div>
       )}
     </form>
