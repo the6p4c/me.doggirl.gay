@@ -1,18 +1,22 @@
 ---
-// Welcome to Astro! Everything between these triple-dash code fences
-// is your "component frontmatter". It never runs in the browser.
-console.log("This runs in your terminal, not the browser!");
+import { getCollection } from "astro:content";
+
+// sort with newest first
+const posts = (await getCollection("posts")).toSorted((a, b) =>
+  a.data.published > b.data.published ? -1 : 1
+);
 ---
 
-<!-- Below is your "component template." It's just HTML, but with
-    some magic sprinkled in to help you build great templates. -->
-<html>
-  <body>
-    <h1>Hello, World!</h1>
-  </body>
-</html>
-<style>
-  h1 {
-    color: orange;
+<ul>
+  {
+    posts.map((post) => {
+      return (
+        <li>
+          <a href={`/post/${post.slug}`}>
+            {post.slug}, {post.data.published}
+          </a>
+        </li>
+      );
+    })
   }
-</style>
+</ul>

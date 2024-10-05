@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<dl>
+  <dt>slug</dt>
+  <dd>{post.slug}</dd>
+  <dt>published</dt>
+  <dd>{post.data.published}</dd>
+  <dt>edited</dt>
+  <dd>{post.data.edited ? post.data.edited : "[no edited date]"}</dd>
+  <dt>tags</dt>
+  <dd>
+    {
+      post.data.tags
+        ? post.data.tags.map((tag) => `#${tag}`).join(", ")
+        : "[no tags]"
+    }
+  </dd>
+</dl>
+
+<Content />
