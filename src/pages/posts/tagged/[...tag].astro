@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+  const tags = posts.flatMap((post) => post.data.tags || []);
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      posts: posts.filter((post) => {
+        if (!post.data.tags) return false;
+
+        return post.data.tags.includes(tag);
+      }),
+    },
+  }));
+}
+
+const { posts } = Astro.props;
+---
+
+<ul>
+  {
+    posts.map((post) => {
+      return (
+        <li>
+          <a href={`/post/${post.slug}`}>
+            {post.slug}, {post.data.published}
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
