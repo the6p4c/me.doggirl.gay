@@ -1,10 +1,9 @@
 import { type FormEvent } from "preact/compat";
 import { useState } from "preact/hooks";
-import { Octokit } from "@octokit/rest";
+
+import Store from "./store";
 
 import styles from "./Editor.module.css";
-
-const CONFIG_PATH = ".posting.json";
 
 export default function Editor() {
   const submit = async (e: FormEvent<HTMLFormElement>) => {
@@ -20,24 +19,7 @@ export default function Editor() {
     const auth = localStorage.getItem("auth");
     const owner = localStorage.getItem("owner");
     const repo = localStorage.getItem("repo");
-
     if (!auth || !owner || !repo) throw "settings";
-
-    const octokit = new Octokit({ auth });
-
-    const config = JSON.parse(
-      atob(
-        (
-          await octokit.rest.repos.getContent({
-            owner,
-            repo,
-            path: CONFIG_PATH,
-          })
-        ).data.content
-      )
-    );
-
-    console.log(config);
 
     const lines = [];
     lines.push("---");
@@ -46,13 +28,8 @@ export default function Editor() {
     lines.push("");
     lines.push(body);
 
-    await octokit.rest.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      message: "post!",
-      path: `${config.path}${slug}.md`,
-      content: btoa(lines.join("\n")),
-    });
+    const store = new Store(auth, owner, repo);
+    await store.createPost(slug, lines.join("\n"));
   };
 
   return (
@@ -79,19 +56,15 @@ export default function Editor() {
 
 export function Settings() {
   type State =
-    | { type: "success"; message: string }
-    | {
-        type: "error";
-        message: string;
-        e?: any;
-      };
+    | { type: "success"; message: string; data?: any }
+    | { type: "error"; message: string; e?: any };
   const [status, setState] = useState<State | null>(null);
   const setError = (message: string, e?: any) => {
     console.error(message, e);
     setState({ type: "error", message, e });
   };
-  const setSuccess = (message: string) =>
-    setState({ type: "success", message });
+  const setSuccess = (message: string, data: any) =>
+    setState({ type: "success", message, data });
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -106,55 +79,13 @@ export function Settings() {
     const owner = target.owner.value;
     const repo = target.repo.value;
 
-    const octokit = new Octokit({ auth });
-
     try {
-      await octokit.rest.repos.get({ owner, repo });
+      const store = new Store(auth, owner, repo);
+      const config = await store.getConfig();
+      setSuccess("settings saved", JSON.stringify(config));
     } catch (e) {
-      setError("repo doesn't exist", e);
-      return;
+      setError("couldn't get config", e);
     }
-
-    let response;
-    try {
-      response = await octokit.rest.repos.getContent({
-        owner,
-        repo,
-        path: CONFIG_PATH,
-      });
-    } catch (e) {
-      setError("couldn't find config", e);
-      return;
-    }
-
-    if (Array.isArray(response.data)) {
-      setError("config was a directory");
-      return;
-    }
-
-    if (response.data.type != "file") {
-      setError(`config wasn't a file; had type ${response.data.type}`);
-      return;
-    }
-
-    let config;
-    try {
-      config = JSON.parse(atob(response.data.content));
-    } catch (e) {
-      setError("couldn't parse config", e);
-      return;
-    }
-
-    try {
-      localStorage.setItem("auth", auth);
-      localStorage.setItem("owner", owner);
-      localStorage.setItem("repo", repo);
-    } catch (e) {
-      setError("couldn't write to local storage", e);
-      return;
-    }
-
-    setSuccess("settings saved!");
   };
 
   return (
@@ -180,12 +111,16 @@ export function Settings() {
       {status && (
         <div className={styles.status}>
           {status.type == "success" ? (
-            <p>{status.message}</p>
+            <>
+              <strong>success!</strong>
+              <p>{status.message}</p>
+            </>
           ) : (
             <>
               <strong>something went wrong</strong>
               <p>{status.message}</p>
-              <pre>{"" + status.e}</pre>
+              {status.e && <pre>{"" + status.e}</pre>}
+              {status.e?.cause && <pre>{"" + status.e.cause}</pre>}
             </>
           )}
         </div>
