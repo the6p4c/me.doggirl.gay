@@ -4,6 +4,8 @@ import { Octokit } from "@octokit/rest";
 
 import styles from "./Editor.module.css";
 
+const CONFIG_PATH = ".posting.json";
+
 export default function Editor() {
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +36,12 @@ export default function Editor() {
 }
 
 export function Settings() {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; e?: any } | null>(null);
+  const die = (message: string, e?: any) => {
+    console.error(message, e);
+    setError({ message, e });
+  };
+  const ok = () => setError(null);
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,17 +57,45 @@ export function Settings() {
     const repo = target.repo.value;
 
     const octokit = new Octokit({ auth });
+
     try {
-      const response = await octokit.rest.repos.get({
+      await octokit.rest.repos.get({ owner, repo });
+    } catch (e) {
+      die("repo doesn't exist", e);
+      return;
+    }
+
+    let response;
+    try {
+      response = await octokit.rest.repos.getContent({
         owner,
         repo,
+        path: CONFIG_PATH,
       });
-
-      console.log(response);
-      setError(null);
     } catch (e) {
-      setError(e + "");
+      die("couldn't find config", e);
+      return;
     }
+
+    if (Array.isArray(response.data)) {
+      die("config was a directory");
+      return;
+    }
+
+    if (response.data.type != "file") {
+      die(`config wasn't a file; had type ${response.data.type}`);
+      return;
+    }
+
+    let config;
+    try {
+      config = JSON.parse(atob(response.data.content));
+    } catch (e) {
+      die("couldn't parse config", e);
+      return;
+    }
+
+    ok();
   };
 
   return (
@@ -86,7 +121,8 @@ export function Settings() {
       {error && (
         <div className={styles.status}>
           <strong>something went wrong</strong>
-          <pre>{error}</pre>
+          <p>{error.message}</p>
+          {error.e && <pre>{"" + error.e}</pre>}
         </div>
       )}
     </form>
