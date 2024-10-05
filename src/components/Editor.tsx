@@ -10,7 +10,49 @@ export default function Editor() {
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // TODO: post
+    const target = e.currentTarget as typeof e.currentTarget & {
+      slug: HTMLInputElement;
+      body: HTMLTextAreaElement;
+    };
+    const slug = target.slug.value;
+    const body = target.body.value;
+
+    const auth = localStorage.getItem("auth");
+    const owner = localStorage.getItem("owner");
+    const repo = localStorage.getItem("repo");
+
+    if (!auth || !owner || !repo) throw "settings";
+
+    const octokit = new Octokit({ auth });
+
+    const config = JSON.parse(
+      atob(
+        (
+          await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: CONFIG_PATH,
+          })
+        ).data.content
+      )
+    );
+
+    console.log(config);
+
+    const lines = [];
+    lines.push("---");
+    lines.push(`published: ${new Date().toISOString()}`);
+    lines.push("---");
+    lines.push("");
+    lines.push(body);
+
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      message: "post!",
+      path: `${config.path}${slug}.md`,
+      content: btoa(lines.join("\n")),
+    });
   };
 
   return (
@@ -19,11 +61,11 @@ export default function Editor() {
       <form onSubmit={submit} className={styles.form}>
         <div className={styles.field}>
           <label>slug</label>
-          <input type="text" />
+          <input name="slug" type="text" />
         </div>
         <div className={styles.field}>
           <label>body</label>
-          <textarea></textarea>
+          <textarea name="body"></textarea>
         </div>
         <div className={styles.buttons}>
           <button type="submit">post</button>
