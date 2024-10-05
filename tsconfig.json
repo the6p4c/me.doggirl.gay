@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@layouts/*": ["src/layouts/*"]
-    }
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   }
 }

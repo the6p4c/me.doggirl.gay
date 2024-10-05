@@ -5,6 +5,11 @@
     "build": "astro build"
   },
   "dependencies": {
-    "astro": "^4.15.11"
-  }
+    "@astrojs/preact": "^3.5.3",
+    "@octokit/rest": "^21.0.2",
+    "astro": "^4.15.11",
+    "modern-normalize": "^3.0.1",
+    "preact": "^10.24.2"
+  },
+  "packageManager": "npm@10.6.0+sha1.da8ec6cf64103735eab2798cba13a5e7b7edcbdd"
 }
