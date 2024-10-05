@@ -1,0 +1,9 @@
+{
+  "name": "me.doggirl.gay",
+  "scripts": {
+    "dev": "astro dev"
+  },
+  "dependencies": {
+    "astro": "^4.15.11"
+  }
+}
