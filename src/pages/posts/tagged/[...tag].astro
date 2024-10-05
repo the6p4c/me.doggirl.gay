@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 
+import RootLayout from "../../../layouts/RootLayout.astro";
+
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
 
@@ -24,16 +26,18 @@ export async function getStaticPaths() {
 const { posts } = Astro.props;
 ---
 
-<ul>
-  {
-    posts.map((post) => {
-      return (
-        <li>
-          <a href={`/post/${post.slug}`}>
-            {post.slug}, {post.data.published}
-          </a>
-        </li>
-      );
-    })
-  }
-</ul>
+<RootLayout>
+  <ul>
+    {
+      posts.map((post) => {
+        return (
+          <li>
+            <a href={`/post/${post.slug}`}>
+              {post.slug}, {post.data.published}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</RootLayout>
