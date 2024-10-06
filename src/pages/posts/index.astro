@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 
+import Post from "@components/Post.astro";
 import RootLayout from "@layouts/RootLayout.astro";
 
 const posts = await getCollection("posts");
@@ -10,17 +11,5 @@ posts.sort((a, b) => newToOld(a.data.published, b.data.published));
 ---
 
 <RootLayout>
-  <ul>
-    {
-      posts.map((post) => {
-        return (
-          <li>
-            <a href={`/post/${post.slug}`}>
-              {post.slug}, {post.data.published}
-            </a>
-          </li>
-        );
-      })
-    }
-  </ul>
+  {posts.map((post) => <Post post={post} />)}
 </RootLayout>

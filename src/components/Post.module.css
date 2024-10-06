@@ -1,0 +1,21 @@
+.post {
+  max-width: 30rem;
+  margin: 1rem;
+}
+
+.post > header {
+  border-bottom: 1px solid black;
+}
+
+.post > footer {
+  border-top: 1px solid black;
+}
+
+.tags {
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}

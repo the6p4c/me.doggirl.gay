@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import styles from "./Post.module.css";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const { published, tags } = post.data;
+---
+
+<article class={styles.post}>
+  <header>posted {published.toLocaleString()}</header>
+  <main>
+    <Content />
+  </main>
+  <footer>
+    {
+      tags && tags.length != 0 ? (
+        <ul class={styles.tags}>
+          {tags.map((tag) => (
+            <li>
+              <a href={`/posts/tagged/${tag}`}>#{tag}</a>
+            </li>
+          ))}
+        </ul>
+      ) : null
+    }
+  </footer>
+</article>
