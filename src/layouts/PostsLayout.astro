@@ -1,0 +1,16 @@
+---
+import RootLayout from "./RootLayout.astro";
+---
+
+<RootLayout>
+  <section class="posts">
+    <slot />
+  </section>
+</RootLayout>
+
+<style>
+  .posts {
+    margin: 0 auto;
+    max-width: 30rem;
+  }
+</style>
