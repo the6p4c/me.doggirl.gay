@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import { getEntry } from "astro:content";
+import Post from "./Post.astro";
+
+import styles from "./Thread.module.css";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+async function getParent(post: CollectionEntry<"posts">) {
+  if (!post.data.parent) return null;
+
+  return await getEntry(post.data.parent);
+}
+
+async function getThread(leaf: CollectionEntry<"posts">) {
+  const thread = [];
+
+  let post: CollectionEntry<"posts"> | null = leaf;
+  while (post) {
+    thread.push(post);
+    post = await getParent(post);
+  }
+
+  thread.reverse();
+  return thread;
+}
+
+const { post } = Astro.props;
+const thread = await getThread(post);
+---
+
+<article class={styles.thread}>
+  {thread.map((post) => <Post post={post} />)}
+</article>
