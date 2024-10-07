@@ -10,6 +10,26 @@
   border-bottom: 1px solid #333;
 }
 
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding-top: 0.5rem;
+  border-top: 1px solid #333;
+  color: #555;
+}
+
+.footer svg {
+  width: 1rem;
+  height: auto;
+  fill: currentColor;
+}
+
+.footer svg:hover {
+  color: #666;
+  cursor: pointer;
+}
+
 .author {
   font-size: 90%;
   color: white;

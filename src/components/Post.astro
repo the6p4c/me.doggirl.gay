@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content";
 
+import EditIcon from "./EditIcon.astro";
+import IfEditor from "./IfEditor";
 import styles from "./Post.module.css";
 
 interface Props {
@@ -35,4 +37,9 @@ const { published, tags } = post.data;
     </div>
   </header>
   <main><Content /></main>
+  <IfEditor client:only="preact">
+    <footer class={styles.footer}>
+      <a href="#"><EditIcon /></a>
+    </footer>
+  </IfEditor>
 </article>
