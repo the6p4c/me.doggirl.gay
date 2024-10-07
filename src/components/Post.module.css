@@ -1,14 +1,38 @@
 .post {
   max-width: 30rem;
   margin: 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px dashed #555555;
 }
 
-.post > header {
-  border-bottom: 1px solid black;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
 }
 
-.post > footer {
-  border-top: 1px solid black;
+.author {
+  font-size: 90%;
+  color: white;
+}
+
+.profilePicture {
+  width: 2rem;
+  margin-right: 0.3rem;
+  border-radius: 9999px;
+  vertical-align: middle;
+}
+
+.meta {
+  text-align: right;
+  color: #555555;
+  font-size: 80%;
+}
+
+.published {
+  text-decoration: none;
 }
 
 .tags {
@@ -18,4 +42,17 @@
   margin: 0;
   padding: 0;
   list-style-type: none;
+}
+
+.post > main {
+  line-height: 1.5;
+}
+
+/* TODO: move these somewhere better */
+a {
+  color: #555;
+}
+
+a:hover {
+  color: #666;
 }

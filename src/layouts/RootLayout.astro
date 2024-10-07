@@ -4,10 +4,24 @@ import "modern-normalize/modern-normalize.css";
 
 <html lang="en">
   <head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@bark</title>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
   </head>
   <body>
     <slot />
   </body>
 </html>
+
+<style>
+  body {
+    background: #222222;
+    color: white;
+    font-family: Inter;
+  }
+</style>
