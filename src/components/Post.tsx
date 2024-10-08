@@ -1,4 +1,4 @@
-import type { ReactNode } from "preact/compat";
+import type { ComponentChildren } from "preact";
 import styles from "./Post.module.css";
 
 interface PostViewProps {
@@ -8,7 +8,7 @@ interface PostViewProps {
   edited?: Date;
   tags: Tag[];
 
-  children: ReactNode;
+  children: ComponentChildren;
 }
 
 interface PostEditProps {
