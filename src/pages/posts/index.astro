@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 
 import Thread from "@components/Thread.astro";
-import PostsLayout from "@layouts/PostsLayout.astro";
+import RootLayout from "@layouts/RootLayout.astro";
 
 const posts = await getCollection("posts");
 
@@ -10,6 +10,7 @@ const newToOld = (a: Date, b: Date) => b.getTime() - a.getTime();
 posts.sort((a, b) => newToOld(a.data.published, b.data.published));
 ---
 
-<PostsLayout>
+<RootLayout>
+  <h1>all posts</h1>
   {posts.map((post) => <Thread post={post} />)}
-</PostsLayout>
+</RootLayout>

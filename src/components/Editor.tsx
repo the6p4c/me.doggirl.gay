@@ -34,7 +34,6 @@ export default function Editor() {
 
   return (
     <>
-      <h1>new post</h1>
       <form onSubmit={submit} className={styles.form}>
         <div className={styles.field}>
           <label>slug</label>

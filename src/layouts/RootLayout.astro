@@ -14,7 +14,9 @@ import "modern-normalize/modern-normalize.css";
     />
   </head>
   <body>
-    <slot />
+    <main class="content">
+      <slot />
+    </main>
   </body>
 </html>
 
@@ -23,5 +25,10 @@ import "modern-normalize/modern-normalize.css";
     background: #222222;
     color: white;
     font-family: Inter;
+  }
+
+  .content {
+    margin: 0 auto;
+    max-width: 30rem;
   }
 </style>
