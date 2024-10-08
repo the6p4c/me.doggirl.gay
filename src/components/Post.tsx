@@ -1,5 +1,6 @@
 import type { ComponentChildren } from "preact";
 import styles from "./Post.module.css";
+import { useRef } from "preact/hooks";
 
 interface PostViewProps {
   permalink: string;
@@ -13,6 +14,9 @@ interface PostViewProps {
 
 interface PostEditProps {
   author: Author;
+  status?: string;
+
+  onSubmit: (body: string) => void;
 }
 
 interface Author {
@@ -48,7 +52,14 @@ export function PostView(props: PostViewProps) {
   );
 }
 
-export function PostEdit({ author }: PostEditProps) {
+export function PostEdit({ author, status, onSubmit }: PostEditProps) {
+  const body = useRef<HTMLTextAreaElement | null>(null);
+
+  const submit = () => {
+    if (!body.current) return;
+    onSubmit(body.current.value);
+  };
+
   return (
     <article className={styles.post}>
       <header>
@@ -57,12 +68,16 @@ export function PostEdit({ author }: PostEditProps) {
       </header>
       <main>
         <textarea
+          ref={body}
           placeholder="type here! (you won't post you're way scared)"
           className={styles.editor}
         />
       </main>
       <footer>
-        <button className={styles.button}>post!</button>
+        {status && <span className={styles.status}>{status}</span>}
+        <button onClick={submit} className={styles.button}>
+          post!
+        </button>
       </footer>
     </article>
   );

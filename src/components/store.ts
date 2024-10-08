@@ -63,7 +63,7 @@ export default class Store {
         repo: this.repo,
         owner: this.owner,
         message: "post~",
-        path: `${config.path}${slug}.md`,
+        path: `${config.path}/${slug}.md`,
         content: btoa(content),
       });
     } catch (e) {

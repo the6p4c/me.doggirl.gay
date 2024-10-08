@@ -4,17 +4,16 @@ import { useState } from "preact/hooks";
 import Store from "./store";
 
 import styles from "./Editor.module.css";
+import { PostEdit } from "./Post";
 
 export default function Editor() {
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [status, setStatus] = useState<string | undefined>(undefined);
 
-    const target = e.currentTarget as typeof e.currentTarget & {
-      slug: HTMLInputElement;
-      body: HTMLTextAreaElement;
-    };
-    const slug = target.slug.value;
-    const body = target.body.value;
+  const submit = async (body: string) => {
+    const now = new Date();
+
+    // TODO: not this
+    const slug = `post-${now.toISOString()}`;
 
     const auth = localStorage.getItem("auth");
     const owner = localStorage.getItem("owner");
@@ -23,33 +22,26 @@ export default function Editor() {
 
     const lines = [];
     lines.push("---");
-    lines.push(`published: ${new Date().toISOString()}`);
+    lines.push(`published: ${now.toISOString()}`);
     lines.push("---");
     lines.push("");
     lines.push(body);
 
     const store = new Store(auth, owner, repo);
-    await store.createPost(slug, lines.join("\n"));
+    try {
+      await store.createPost(slug, lines.join("\n"));
+      setStatus(undefined);
+    } catch (e) {
+      setStatus("" + e);
+    }
   };
 
   return (
-    <>
-      <form onSubmit={submit} className={styles.form}>
-        <div className={styles.field}>
-          <label>slug</label>
-          <input name="slug" type="text" />
-        </div>
-        <div className={styles.field}>
-          <label>body</label>
-          <textarea name="body"></textarea>
-        </div>
-        <div className={styles.buttons}>
-          <button type="submit">post</button>
-        </div>
-      </form>
-
-      <Settings />
-    </>
+    <PostEdit
+      author={{ imageUrl: "/bark.png", name: "bark" }}
+      status={status}
+      onSubmit={submit}
+    />
   );
 }
 
