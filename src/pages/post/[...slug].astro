@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 
-import Post from "@components/Post.astro";
+import Thread from "@components/Thread.astro";
 import RootLayout from "@layouts/RootLayout.astro";
 
 export async function getStaticPaths() {
@@ -17,5 +17,5 @@ const { post } = Astro.props;
 ---
 
 <RootLayout>
-  <Post post={post} />
+  <Thread post={post} />
 </RootLayout>

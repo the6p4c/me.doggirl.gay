@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import { PostView as Inner } from "./Post";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<Inner
+  permalink={`/post/${post.slug}`}
+  author={{ imageUrl: "/bark.png", name: "bark" }}
+  posted={post.data.published}
+  edited={post.data.edited}
+  tags={(post.data.tags || []).map((tag) => ({
+    name: tag,
+    link: `/posts/tagged/${tag}`,
+  }))}
+>
+  <Content />
+</Inner>
