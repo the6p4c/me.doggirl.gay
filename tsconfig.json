@@ -4,7 +4,8 @@
     "exactOptionalPropertyTypes": false,
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@layouts/*": ["./layouts/*"]
     }
   }
 }

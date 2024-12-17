@@ -1,8 +1,8 @@
 ---
-layout: ../../posting/RootLayout.astro
+layout: "@layouts/RootLayout.astro"
 ---
 
-**turning chains**
+# turning chains
 
 - basically every pattern worked in rows calls for a specific number of chains at the end of each row, before beginning to work back into the previous row
 
