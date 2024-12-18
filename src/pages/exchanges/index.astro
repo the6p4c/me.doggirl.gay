@@ -34,12 +34,15 @@
     iconSize: [16, 16],
   });
   for (const { attributes, geometry } of exchanges) {
+    const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${geometry.y},${geometry.x}`;
+
     // TODO: can we do this without the awful html-in-a-string
     L.marker([geometry.y, geometry.x], { icon })
       .bindPopup(
         `
           <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
-          <p>${attributes.address ? `${attributes.address}, ` : ``} ${attributes.suburb}, ${attributes.state}</p>
+          <p>${attributes.address ? `${attributes.address},` : ``} ${attributes.suburb}, ${attributes.state}</p>
+          <p><a href="${googleMapsLink}" target="_blank">open in google maps</a></p>
         `
       )
       .addTo(map);
