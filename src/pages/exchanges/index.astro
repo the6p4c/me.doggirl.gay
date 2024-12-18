@@ -54,7 +54,12 @@ import RootLayout from "@/layouts/RootLayout.astro";
         .bindPopup(
           `
           <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
-          <p>${attributes.address ? `${attributes.address},` : ``} ${attributes.suburb}, ${attributes.state}</p>
+          <p>
+            <addr>
+              ${attributes.address ? `${attributes.address}<br>` : ``}
+              ${attributes.suburb}, ${attributes.state}
+            </addr>
+          </p>
           <p><a href="${googleMapsLink}" target="_blank">open in google maps</a></p>
         `
         )
