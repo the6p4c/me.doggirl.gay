@@ -19,11 +19,26 @@
 
   const response = await fetch("/exchanges/exchanges.json");
   const exchanges = (await response.json()) as {
+    attributes: {
+      name: string;
+      exchangeserviceareaid: string;
+      address: string | null;
+      suburb: string;
+      state: string;
+    };
     geometry: { x: number; y: number };
   }[];
 
-  for (const exchange of exchanges) {
-    L.marker([exchange.geometry.y, exchange.geometry.x]).addTo(map);
+  for (const { attributes, geometry } of exchanges) {
+    // TODO: can we do this without the awful html-in-a-string
+    L.marker([geometry.y, geometry.x])
+      .bindPopup(
+        `
+          <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
+          <p>${attributes.address ? `${attributes.address}, ` : ``} ${attributes.suburb}, ${attributes.state}</p>
+        `
+      )
+      .addTo(map);
   }
 </script>
 
