@@ -1,60 +1,75 @@
-<div id="map"></div>
+---
+import RootLayout from "@/layouts/RootLayout.astro";
+---
 
-<script>
-  import L from "leaflet";
+<RootLayout>
+  <h1>exchanges</h1>
+  <p>
+    data sourced from Geoscience Australia's <a
+      href="https://services.ga.gov.au/gis/rest/services/Telephone_Exchanges/MapServer"
+      >National Telephone Exchanges</a
+    > dataset.
+  </p>
 
-  import "leaflet/dist/leaflet.css";
+  <div id="map"></div>
 
-  // vaguely all of australia
-  const map = L.map("map").fitBounds([
-    [-8.9668, 115.9417],
-    [-43.901, 150.4128],
-  ]);
+  <script>
+    import L from "leaflet";
 
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map);
+    import "leaflet/dist/leaflet.css";
 
-  const response = await fetch("/exchanges/exchanges.json");
-  const exchanges = (await response.json()) as {
-    attributes: {
-      name: string;
-      exchangeserviceareaid: string;
-      address: string | null;
-      suburb: string;
-      state: string;
-    };
-    geometry: { x: number; y: number };
-  }[];
+    // vaguely all of australia
+    const map = L.map("map").fitBounds([
+      [-8.9668, 115.9417],
+      [-43.901, 150.4128],
+    ]);
 
-  const icon = L.divIcon({
-    className: "marker",
-    iconSize: [16, 16],
-  });
-  for (const { attributes, geometry } of exchanges) {
-    const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${geometry.y},${geometry.x}`;
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
 
-    // TODO: can we do this without the awful html-in-a-string
-    L.marker([geometry.y, geometry.x], { icon })
-      .bindPopup(
-        `
+    const response = await fetch("/exchanges/exchanges.json");
+    const exchanges = (await response.json()) as {
+      attributes: {
+        name: string;
+        exchangeserviceareaid: string;
+        address: string | null;
+        suburb: string;
+        state: string;
+      };
+      geometry: { x: number; y: number };
+    }[];
+
+    const icon = L.divIcon({
+      className: "marker",
+      iconSize: [16, 16],
+    });
+    for (const { attributes, geometry } of exchanges) {
+      const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${geometry.y},${geometry.x}`;
+
+      // TODO: can we do this without the awful html-in-a-string
+      L.marker([geometry.y, geometry.x], { icon })
+        .bindPopup(
+          `
           <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
           <p>${attributes.address ? `${attributes.address},` : ``} ${attributes.suburb}, ${attributes.state}</p>
           <p><a href="${googleMapsLink}" target="_blank">open in google maps</a></p>
         `
-      )
-      .addTo(map);
-  }
-</script>
+        )
+        .addTo(map);
+    }
+  </script>
+</RootLayout>
 
 <style is:global>
   html,
   body,
   #map {
     width: 100%;
-    height: 100%;
+    max-height: 80vh;
+    aspect-ratio: 3/2;
     margin: 0;
   }
 
