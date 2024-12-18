@@ -1,50 +1,30 @@
 <div id="map"></div>
 
 <script>
-  import { Feature, Map, View } from "ol";
-  import { Point } from "ol/geom";
-  import TileLayer from "ol/layer/Tile";
-  import VectorLayer from "ol/layer/Vector";
-  import { OSM, Vector } from "ol/source";
+  import L from "leaflet";
 
-  import "ol/ol.css";
+  import "leaflet/dist/leaflet.css";
 
-  const map = new Map({
-    target: "map",
-    layers: [
-      new TileLayer({
-        source: new OSM(),
-      }),
-    ],
-    view: new View({
-      center: [0, 0],
-      zoom: 2,
-    }),
-  });
+  // vaguely all of australia
+  const map = L.map("map").fitBounds([
+    [-8.9668, 115.9417],
+    [-43.901, 150.4128],
+  ]);
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
 
   const response = await fetch("/exchanges/exchanges.json");
   const exchanges = (await response.json()) as {
     geometry: { x: number; y: number };
   }[];
 
-  // it's actually GDA94, but eh
-  const crsWgs84 = "EPSG:4326";
-  const crsOsm = "EPSG:3857";
-  const layer = new VectorLayer({
-    source: new Vector({
-      features: exchanges.map(
-        (exchange) =>
-          new Feature(
-            new Point([exchange.geometry.x, exchange.geometry.y]).transform(
-              crsWgs84,
-              crsOsm
-            )
-          )
-      ),
-    }),
-  });
-
-  map.addLayer(layer);
+  for (const exchange of exchanges) {
+    L.marker([exchange.geometry.y, exchange.geometry.x]).addTo(map);
+  }
 </script>
 
 <style>
