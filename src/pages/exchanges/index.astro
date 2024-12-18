@@ -29,9 +29,13 @@
     geometry: { x: number; y: number };
   }[];
 
+  const icon = L.divIcon({
+    className: "marker",
+    iconSize: [16, 16],
+  });
   for (const { attributes, geometry } of exchanges) {
     // TODO: can we do this without the awful html-in-a-string
-    L.marker([geometry.y, geometry.x])
+    L.marker([geometry.y, geometry.x], { icon })
       .bindPopup(
         `
           <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
@@ -42,12 +46,16 @@
   }
 </script>
 
-<style>
+<style is:global>
   html,
   body,
   #map {
     width: 100%;
     height: 100%;
     margin: 0;
+  }
+
+  .marker {
+    background: url("/exchanges/marker.svg") center no-repeat;
   }
 </style>
