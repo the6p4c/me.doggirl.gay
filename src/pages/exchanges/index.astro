@@ -2,129 +2,35 @@
 import RootLayout from "@/layouts/RootLayout.astro";
 ---
 
+<script>
+  import Map from "ol/Map";
+  import View from "ol/View";
+  import TileLayer from "ol/layer/Tile";
+  import XYZ from "ol/source/XYZ";
+
+  new Map({
+    target: "map",
+    layers: [
+      new TileLayer({
+        source: new XYZ({
+          url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        }),
+      }),
+    ],
+    view: new View({
+      center: [0, 0],
+      zoom: 2,
+    }),
+  });
+</script>
+
 <RootLayout>
-  <h1>exchanges</h1>
-  <p>
-    data sourced from Geoscience Australia's <a
-      href="https://services.ga.gov.au/gis/rest/services/Telephone_Exchanges/MapServer"
-      >National Telephone Exchanges</a
-    > dataset.
-  </p>
-
   <div id="map"></div>
-
-  <script>
-    import L from "leaflet";
-
-    import "leaflet/dist/leaflet.css";
-
-    type Exchange = {
-      attributes: {
-        name: string;
-        exchangeserviceareaid: string;
-        address: string | null;
-        suburb: string;
-        state: string;
-      };
-      geometry: { x: number; y: number };
-    };
-
-    class ExchangeMap {
-      map: L.Map;
-      exchangeIcon: L.DivIcon;
-      markers: Record<string, L.Marker>;
-
-      constructor() {
-        this.map = L.map("map")
-          .addLayer(
-            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-              maxZoom: 19,
-              attribution:
-                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            })
-          )
-          .fitBounds([
-            [-8.9668, 115.9417],
-            [-43.901, 150.4128],
-          ]);
-
-        this.exchangeIcon = L.divIcon({
-          className: "marker",
-          iconSize: [16, 16],
-        });
-
-        this.markers = {};
-      }
-
-      init(exchanges: Exchange[]) {
-        const icon = this.exchangeIcon;
-
-        this.markers = Object.fromEntries(
-          exchanges.map(({ attributes, geometry }) => {
-            // TODO: can we do this without the awful html-in-a-string
-            const permalink = `#${attributes.exchangeserviceareaid}`;
-            const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${geometry.y},${geometry.x}`;
-            const marker = L.marker([geometry.y, geometry.x], { icon })
-              .bindPopup(
-                `
-                  <p><strong>${attributes.name} (${attributes.exchangeserviceareaid})</strong></p>
-                  <p>
-                    <addr>
-                      ${attributes.address ? `${attributes.address}<br>` : ``}
-                      ${attributes.suburb}, ${attributes.state}
-                    </addr>
-                  </p>
-                  <p><a href="${googleMapsLink}" target="_blank">open in google maps</a> &middot; <a href="${permalink}">permalink</a></p>
-                `
-              )
-              .addTo(this.map);
-
-            return [attributes.exchangeserviceareaid, marker];
-          })
-        );
-      }
-
-      goto(id: string) {
-        const marker = this.markers[id];
-        if (!marker) return;
-
-        marker.openPopup();
-        this.map.setView(marker.getLatLng(), 15);
-      }
-    }
-
-    const map = new ExchangeMap();
-
-    const getExchanges = async () => {
-      const response = await fetch("/exchanges/exchanges.json");
-
-      return await response.json();
-    };
-    const exchanges = await getExchanges();
-    map.init(exchanges);
-
-    const gotoHash = (hash: string) => {
-      const id = hash.slice(1);
-      map.goto(id);
-    };
-
-    if (location.hash) gotoHash(location.hash);
-
-    addEventListener("hashchange", () => gotoHash(location.hash));
-  </script>
 </RootLayout>
 
-<style is:global>
-  html,
-  body,
+<style>
   #map {
     width: 100%;
-    max-height: 80vh;
-    aspect-ratio: 3/2;
-    margin: 0;
-  }
-
-  .marker {
-    background: url("/exchanges/marker.svg") center no-repeat;
+    height: 20rem;
   }
 </style>
