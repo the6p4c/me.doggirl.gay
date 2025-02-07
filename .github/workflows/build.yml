@@ -1,5 +1,9 @@
 on:
-  - push
+  push:
+    # only build and deploy changes pushed to the main branch, otherwise changes pushed to any
+    # branch (e.g. a dev branch) will immediately become live. which is cool
+    branches:
+      - main
 jobs:
   build:
     name: Build
