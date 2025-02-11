@@ -62,32 +62,32 @@ def exchanges_query_all() -> list[Feature]:
     return features
 
 
+def make_waypoint(
+    name: str, lat: float, lon: float, **extensions: dict[str | None, str]
+):
+    waypoint = gpxpy.gpx.GPXWaypoint(lat, lon, name=name)
+
+    for name, value in extensions.items():
+        element = mod_etree.Element(name)
+        element.text = saxutils.escape(value)
+        waypoint.extensions.append(element)
+
+    return waypoint
+
+
 exchanges = exchanges_query_all()
 
 gpx = gpxpy.gpx.GPX()
 for exchange in exchanges:
-    lat, lon = exchange.geometry.y, exchange.geometry.x
     name = f"{exchange.attributes.name} ({exchange.attributes.exchangeserviceareaid})"
+    lat, lon = exchange.geometry.y, exchange.geometry.x
     if exchange.attributes.address is not None:
         address = f"{exchange.attributes.address}, {exchange.attributes.suburb}, {exchange.attributes.state}"
     else:
         address = f"{exchange.attributes.suburb}, {exchange.attributes.state}"
     status = exchange.attributes.operationalstatus
 
-    gpx_waypoint = gpxpy.gpx.GPXWaypoint(
-        lat,
-        lon,
-        name=name,
-    )
-
-    extension_address = mod_etree.Element("address")
-    extension_address.text = saxutils.escape(address)
-    gpx_waypoint.extensions.append(extension_address)
-
-    extension_status = mod_etree.Element("status")
-    extension_status.text = saxutils.escape(status)
-    gpx_waypoint.extensions.append(extension_status)
-
+    gpx_waypoint = make_waypoint(name, lat, lon, address=address, status=status)
     gpx.waypoints.append(gpx_waypoint)
 
 path = Path(os.path.dirname(os.path.realpath(__file__)))
